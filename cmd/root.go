@@ -41,42 +41,43 @@ var rootCmd = &cobra.Command{
 			case mode.IsDir():
 				FilePath = filepath.Join(FilePath, DEFAULT_FILE_NAME)
 			}
-			f, err := os.Create(FilePath)
-			if err != nil {
-				log.Fatalf("Could not create the file in the required path")
-			}
-			defer f.Close()
-
-			resp, err := http.Get(args[0])
-			if err != nil {
-				log.Fatalf("Get failed: %v", err)
-			}
-			defer resp.Body.Close()
-			wrappedIn := flowrate.NewReader(resp.Body, Throttling)
-
-			chanWriter := NewChanWriter()
-			// Copy to channel
-			go func() {
-				defer chanWriter.Close()
-				_, err = io.Copy(chanWriter, wrappedIn)
-				if err != nil {
-					log.Fatalf("Copy failed: %v", err)
-				}
-			}()
-
-			var hash []byte
-			for c := range chanWriter.Chan() {
-				hash = Hash(c)
-			}
-			hexString := hex.EncodeToString(hash)
-			//fmt.Println(hexString)
-			_, err = f.WriteString(hexString)
-			if err != nil {
-				log.Fatalf("Error writing HEX (%s) to file",hexString)
-			}
-			f.Sync()
-			log.Println("File "+f.Name()+" writed with the hex of the URL downloaded")
 		}
+		f, err := os.Create(FilePath)
+		if err != nil {
+			log.Fatalf("Could not create the file in the required path")
+		}
+
+		defer f.Close()
+
+		resp, err := http.Get(args[0])
+		if err != nil {
+			log.Fatalf("Get failed: %v", err)
+		}
+		defer resp.Body.Close()
+		wrappedIn := flowrate.NewReader(resp.Body, Throttling)
+
+		chanWriter := NewChanWriter()
+		// Copy to channel
+		go func() {
+			defer chanWriter.Close()
+			_, err = io.Copy(chanWriter, wrappedIn)
+			if err != nil {
+				log.Fatalf("Copy failed: %v", err)
+			}
+		}()
+
+		var hash []byte
+		for c := range chanWriter.Chan() {
+			hash = Hash(c)
+		}
+		hexString := hex.EncodeToString(hash)
+		//fmt.Println(hexString)
+		_, err = f.WriteString(hexString)
+		if err != nil {
+			log.Fatalf("Error writing HEX (%s) to file",hexString)
+		}
+		f.Sync()
+		log.Println("File "+f.Name()+" writed with the hex of the URL downloaded")
 	},
 }
 

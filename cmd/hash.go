@@ -4,7 +4,7 @@ package cmd
 There must be something fishy about this algorithm that I am not understanding and because of lack of direct communication
 I can't put this to the test. But as Far as I can understand, it does not matter how large or small is the []byte passed.
 It will all be decided by the last byte of the []byte. I will implement this as specified but leave this comment here so
-it is noted and in the hopes that someone maybe wants to clarify this for me. Thanks
+it is noted and in the hopes that someone maybe wants to clarify this for me. Thanks. I try to leave my point coded the tests also.
 
 This is the information I got from Jeff about the hash function:
 
