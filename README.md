@@ -14,4 +14,5 @@ I would appretiate a follow up on the discussion in the hash.go comments. I leav
 
 ## TODO
 
-Maybe it would be nice to have an output bar that gives feedback to the user about the status of the download. So it does not think the program stalled
+- Maybe it would be nice to have an output bar that gives feedback to the user about the status of the download. So it does not think the program stalled
+- Support HTTP Basic Auth/FTP/SFPT/S3, maybee define subcommands for everyone of them
