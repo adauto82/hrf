@@ -11,3 +11,7 @@ To be able to run this you should have [go](https://golang.org/doc/install) inst
 ## Disclamer
 
 I would appretiate a follow up on the discussion in the hash.go comments. I leave there an explenation about what I think that happened.
+
+## TODO
+
+Maybe it would be nice to have an output bar that gives feedback to the user about the status of the download. So it does not think the program stalled
