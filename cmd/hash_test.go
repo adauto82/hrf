@@ -13,7 +13,7 @@ func TestHashFunction(t *testing.T) {
 
 	for i, e := range expected {
 		if e != res[i] {
-			t.Error(fmt.Sprintf("%d index should be %d instead of %d",i,e,res[i]))
+			t.Error(fmt.Sprintf("%d index should be %d instead of %d", i, e, res[i]))
 			return
 		}
 	}
@@ -30,7 +30,7 @@ func TestHashFunctionIgnoresAllTheBytesButLast(t *testing.T) {
 	//expected := []byte{24, 108, 90, 204, 81, 189, 102, 126}
 	for i, _ := range resK {
 		if resU[i] != resK[i] {
-			t.Error(fmt.Sprintf("%d from resU is different from %d from resK at index i: %d",resU[i],resK[i],i))
+			t.Error(fmt.Sprintf("%d from resU is different from %d from resK at index i: %d", resU[i], resK[i], i))
 			return
 		}
 	}

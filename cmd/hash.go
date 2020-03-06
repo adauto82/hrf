@@ -29,11 +29,11 @@ When converted to hexadecimal for writing to the output file:
 */
 
 //IMT Hash Function
-var COEFFICIENTS = [8]int{ 2, 3, 5, 7, 11, 13, 17, 19 }
+var COEFFICIENTS = [8]int{2, 3, 5, 7, 11, 13, 17, 19}
 
 //Indexed Merkle Tree hash function
 func Hash(bytes []byte) []byte {
-	hash := []byte{0,0,0,0,0,0,0,0}
+	hash := []byte{0, 0, 0, 0, 0, 0, 0, 0}
 	for _, ib := range bytes {
 		for i := range hash {
 			if i == 0 {

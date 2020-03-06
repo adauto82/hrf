@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 )
+
 const DEFAULT_FILE_NAME = "default_file"
 
 var Throttling int64
@@ -74,10 +75,10 @@ var rootCmd = &cobra.Command{
 		//fmt.Println(hexString)
 		_, err = f.WriteString(hexString)
 		if err != nil {
-			log.Fatalf("Error writing HEX (%s) to file",hexString)
+			log.Fatalf("Error writing HEX (%s) to file", hexString)
 		}
 		f.Sync()
-		log.Println("File "+f.Name()+" writed with the hex of the URL downloaded")
+		log.Println("File " + f.Name() + " writed with the hex of the URL downloaded")
 	},
 }
 
