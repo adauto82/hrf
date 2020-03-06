@@ -26,12 +26,12 @@ var rootCmd = &cobra.Command{
 	If no --file_path is passed the hash will be stored in the default_file on your CWD.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
-			log.Fatalf("Pass an URL after the options (e.g: http//www.google.com")
+			log.Fatalf("Pass an URL after the options (e.g: http//www.google.com )")
 		}
 		_, err := url.ParseRequestURI(args[0])
 		if err != nil {
 			log.Print(err)
-			log.Fatalf("Pass a correft URL after the options (e.g: http//www.google.com )")
+			log.Fatalf("Pass a correct URL after the options (e.g: http//www.google.com )")
 		}
 
 		inf, err := os.Stat(FilePath)
@@ -75,6 +75,7 @@ var rootCmd = &cobra.Command{
 				log.Fatalf("Error writing HEX (%s) to file",hexString)
 			}
 			f.Sync()
+			log.Println("File "+f.Name()+" writed with the hex of the URL downloaded")
 		}
 	},
 }

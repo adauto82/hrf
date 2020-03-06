@@ -1,7 +1,7 @@
 package main
 
 import (
-  "ExampleProject/cmd"
+  "github.com/adauto82/hrf/cmd"
 )
 
 func main() {
