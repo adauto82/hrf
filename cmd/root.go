@@ -1,22 +1,29 @@
 package cmd
 
 import (
+	"encoding/hex"
 	"fmt"
+	"github.com/mxk/go-flowrate/flowrate"
 	"github.com/spf13/cobra"
-	//"io"
+	"io"
+	"path/filepath"
+
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 )
+const DEFAULT_FILE_NAME = "default_file"
 
 var Throttling int64
+var FilePath string
 
 var rootCmd = &cobra.Command{
-	Use:   "hrf",
+	Use:   "hrf [OPTIONS] URL",
 	Short: "Hash remote file is a way of obtaining the hash of a file without storing it",
 	//Need better wording
-	Long: `A way to target a remote file and obtain its hash without storing it into you compute.`,
+	Long: `A way to target a remote file and obtain its hash without storing it into you compute. 
+	If no --file_path is passed the hash will be stored in the default_file on your CWD.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) < 1 {
 			log.Fatalf("Pass an URL after the options (e.g: http//www.google.com")
@@ -26,32 +33,49 @@ var rootCmd = &cobra.Command{
 			log.Print(err)
 			log.Fatalf("Pass a correft URL after the options (e.g: http//www.google.com )")
 		}
-		resp, err := http.Get(args[0])
-		if err != nil {
-			log.Fatalf("Get failed: %v", err)
+
+		inf, err := os.Stat(FilePath)
+		//either is a file or it is a directory
+		if err == nil {
+			switch mode := inf.Mode(); {
+			case mode.IsDir():
+				FilePath = filepath.Join(FilePath, DEFAULT_FILE_NAME)
+			}
+			f, err := os.Create(FilePath)
+			if err != nil {
+				log.Fatalf("Could not create the file in the required path")
+			}
+			defer f.Close()
+
+			resp, err := http.Get(args[0])
+			if err != nil {
+				log.Fatalf("Get failed: %v", err)
+			}
+			defer resp.Body.Close()
+			wrappedIn := flowrate.NewReader(resp.Body, Throttling)
+
+			chanWriter := NewChanWriter()
+			// Copy to channel
+			go func() {
+				defer chanWriter.Close()
+				_, err = io.Copy(chanWriter, wrappedIn)
+				if err != nil {
+					log.Fatalf("Copy failed: %v", err)
+				}
+			}()
+
+			var hash []byte
+			for c := range chanWriter.Chan() {
+				hash = Hash(c)
+			}
+			hexString := hex.EncodeToString(hash)
+			//fmt.Println(hexString)
+			_, err = f.WriteString(hexString)
+			if err != nil {
+				log.Fatalf("Error writing HEX (%s) to file",hexString)
+			}
+			f.Sync()
 		}
-		defer resp.Body.Close()
-		//wrappedIn := flowrate.NewReader(resp.Body, Throttling)
-
-		chanWriter := NewChanWriter()
-		// Copy to channel
-		go func() {
-			defer chanWriter.Close()
-			chanWriter.Write([]byte{12})
-			//_, err = io.Copy(chanWriter, wrappedIn)
-		}()
-
-
-		var hash []byte
-		for c := range chanWriter.Chan() {
-			hash = Hash(c)
-			fmt.Println(hash)
-		}
-
-		if err != nil {
-			log.Fatalf("Copy failed: %v", err)
-		}
-
 	},
 }
 
@@ -62,5 +86,7 @@ func Execute() {
 	}
 }
 func init() {
-	rootCmd.Flags().Int64VarP(&Throttling, "throttling", "t", 0, "Throttle the download to a rate of bytes. Pass a number that will be parsed as the number of KB that this will be throttled")
+	rootCmd.Flags().StringVarP(&FilePath, "file_path", "p", DEFAULT_FILE_NAME, "The path to where the hash will be written")
+	//TODO: Permit KB / MB
+	rootCmd.Flags().Int64VarP(&Throttling, "throttling", "t", 0, "Throttle the download to a rate of bytes. If no number is passed, then no limits.")
 }
